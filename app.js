@@ -1,3 +1,4 @@
+var socketio = require('socket.io');
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -74,6 +75,15 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+/**
+ * Connect socketio.
+ */
+var io = socketio.listen(server);
+
+io.sockets.on('connection', function(socket){
+        require('./app/controllers/socket.server.controller')(io, socket);
+        });
 
 /**
  * Listen on provided port, on all network interfaces.
