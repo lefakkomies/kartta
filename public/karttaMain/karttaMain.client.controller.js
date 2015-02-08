@@ -10,17 +10,34 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', 'Sock
         var counter = 0;
         // Add an event listener to the 'karttaMessage' event
         SocketIO.on('karttaMessage', function(message) {
+            console.log(message);
             //$scope.messages.push(message);
             $scope.messages.splice(0, 0, message);
+            if (message.messageLatitude || message.messageLongitude) {
+                var info = {
+                    latitude: message.messageLatitude,
+                    longitude: message.messageLongitude,
+                    title: "Hello there",
+                    id: counter 
+                       }
+                if (counter==0) {
+                $scope.karttaMarkers.push(info);
+                    counter += 0.1;
+                } else {
+                $scope.karttaMarkers[0] =  info;   
+                }
+            }
         });
         
         // Create a controller method for sending messages
         $scope.sendMessage = function() {
         	// Create a new message object
             var message = {
-                text: this.messageText,
+                text: $scope.messageText,
+                messageLongitude: $scope.messageLongitude,
+                messageLatitude: $scope.messageLatitude
             };
-            
+            console.log(message);
             // Emit a 'karttaMessage' message event
             SocketIO.emit('karttaMessage', message);
             
@@ -67,15 +84,15 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', 'Sock
         $scope.testMap = function() {
                 //$scope.map = { center: { latitude: 55, longitude: -73 }, zoom: 6 };
             	$scope.map = { center: { latitude: 55, longitude: -73 }, zoom: 8 };
-            	
+            	/*
             	$scope.karttaMarkers.push({
                                             latitude: 55+counter,
                                             longitude: -73+counter,
                                             title: "Hello there",
                     						id: counter 
                 						});
-            	counter += 0.1;
-            	console.log($scope.karttaMarkers);
+            	counter += 0.1;*/
+            	//console.log($scope.karttaMarkers);
               };
         	
 		

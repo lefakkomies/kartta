@@ -26,7 +26,9 @@
 <!-- The message form -->
     <form class='' ng-submit="sendMessage();">
         <div class='form-group'>
-        <input type="text" data-ng-model="messageText">
+        <input type="text" data-ng-model="messageText" />
+        <input type="number"  data-ng-model="messageLatitude" />
+        <input type="number"  data-ng-model="messageLongitude" />
         <input type="submit">
         </div>
         </form>

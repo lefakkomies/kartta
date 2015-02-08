@@ -13,10 +13,11 @@ module.exports = function(io, socket) {
 
     // Send a xmos messages to all connected sockets when a message is received 
     socket.on('karttaMessage', function(message) {
+        console.log(message);
         message.type = 'message';
         message.created = Date.now();
         message.username = 'dummy';
-        message.kartta_response_text = "received: "+message.text;
+        message.kartta_response_text = "r: "+message.text+" Lat:"+message.messageLatitude.toString()+" Lon:"+message.messageLongitude.toString();
         io.emit('karttaMessage', message);   
     });
 
