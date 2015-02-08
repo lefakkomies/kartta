@@ -16,10 +16,7 @@ module.exports = function(io, socket) {
         message.type = 'message';
         message.created = Date.now();
         message.username = 'dummy';
-        serial.write(message.text, function(err, results) {
-            console.log('err ' + err);
-            console.log('results ' + results);
-        });
+        message.kartta_response_text = "received: "+message.text;
         io.emit('karttaMessage', message);   
     });
 

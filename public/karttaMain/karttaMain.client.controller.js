@@ -26,9 +26,9 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', 'Sock
             // Clear the message text
             this.messageText = '';
         }
-        // test for sending LED toggle command
+        // for sending test command
         $scope.testMessage = function() {
-                SocketIO.emit('karttaMessage', "This is a test message");
+                SocketIO.emit('karttaMessage', {text: "This is a test message"});
         }
 
         // Remove the event listener when the controller instance is destroyed
