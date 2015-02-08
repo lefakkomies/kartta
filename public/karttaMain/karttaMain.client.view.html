@@ -6,9 +6,15 @@
     
     
 <p>HELLO</p>
+<div class="angular-google-map-container">    
+<ui-gmap-google-map center='map.center' zoom='map.zoom'>
     
-<ui-gmap-google-map center='map.center' zoom='map.zoom'></ui-gmap-google-map>    
-    
+	<ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id">
+    </ui-gmap-marker>
+    <ui-gmap-markers models="karttaMarkers" coords="'self'" icon="'icon'">
+        </ui-gmap-markers>
+</ui-gmap-google-map>    
+</div>
     <div class="well">            
 <button class="btn btn-primary btn-xs" ng-click="testMessage()">
         TEST

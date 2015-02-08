@@ -10,7 +10,7 @@ config(['$routeProvider', function($routeProvider) {
 }]).
 config(function(uiGmapGoogleMapApiProvider) {
     uiGmapGoogleMapApiProvider.configure({
-        //    key: 'your api key',
+        //key: 'xxx',
         v: '3.17',
         libraries: 'weather,geometry,visualization'
     });
