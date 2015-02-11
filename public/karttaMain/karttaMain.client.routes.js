@@ -6,6 +6,7 @@ angular.module('karttaMain').config(['$routeProvider',
         $routeProvider.
         when('/kartta', {
         	templateUrl: 'karttaMain/karttaMain.client.view.html'
-        });
+        }).
+        when('/', {templateUrl: 'main.client.view.html'});
     }
 ]); 

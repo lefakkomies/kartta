@@ -3,9 +3,10 @@
 
 
 // Create  'karttaMain' controller
-angular.module('karttaMain').controller('karttaMainController', ['$scope', 'SocketIO','uiGmapGoogleMapApi',
-    function($scope, SocketIO,uiGmapGoogleMapApi) {
+angular.module('karttaMain').controller('karttaMainController', ['$scope', 'SocketIO','uiGmapGoogleMapApi','UserState',
+    function($scope, SocketIO,uiGmapGoogleMapApi,UserState) {
         // Store messages
+        $scope.userstate = UserState;
         $scope.messages = [];
         var counter = 0;
         // Add an event listener to the 'karttaMessage' event

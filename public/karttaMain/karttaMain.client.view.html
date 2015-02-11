@@ -1,12 +1,13 @@
 <!-- The main view -->
-<div class='row'>
-<div class='container'>
-<section class='well well-lg' data-ng-controller="karttaMainController">
 
-    
-    
-<p>HELLO</p>
-<div class="angular-google-map-container">    
+<section class='' data-ng-controller="karttaMainController">
+<div class='container'>
+<div class="row well well-lg"> 
+  
+    <div class="col-md-7"><p class='lead'>You, <strong>{{userstate.name}}</strong>, are in track-room <strong>{{userstate.trackroom}}</strong>. </p></div>
+    <div class="col-md-1"></div>
+    <div class="col-md-4"><a href="/#/" role="button" class="btn btn-success btn-large">Leave {{userstate.trackroom}}</a></div>
+<div class="angular-google-map-container col-md-12">    
 <ui-gmap-google-map center='map.center' zoom='map.zoom'>
     
 	<ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id">
@@ -15,16 +16,16 @@
         </ui-gmap-markers>
 </ui-gmap-google-map>    
 </div>
-    <div class="well">            
+    <div class="well col-md-12">            
 <button class="btn btn-primary btn-xs" ng-click="testMessage()">
-        TEST
+        TEST 
         </button>
 <button class="btn btn-primary btn-xs" ng-click="testMap()">
         MAP TEST
         </button>
         </div>
 <!-- The message form -->
-    <form class='' ng-submit="sendMessage();">
+    <form class='col-md-12' ng-submit="sendMessage();">
         <div class='form-group'>
         <input type="text" data-ng-model="messageText" />
         <input type="number"  data-ng-model="messageLatitude" />
@@ -33,7 +34,7 @@
         </div>
         </form>
     
-    <div data-ng-repeat="message in messages" data-ng-switch="message.type">
+    <div class="col-md-12" data-ng-repeat="message in messages" data-ng-switch="message.type">
         <!-- Status messages bolder -->
         <strong data-ng-switch-when='status'>
                 <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
@@ -52,8 +53,6 @@
             <span data-ng-bind="message.kartta_response_text"></span>
         </span>
     </div>
-    
-    
+</div> 
+</div>
 </section>
-</div>
-</div>

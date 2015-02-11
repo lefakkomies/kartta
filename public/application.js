@@ -5,8 +5,8 @@
 var mainApplicationModuleName = 'karttaApp';
 angular.module(mainApplicationModuleName, ['ngResource','ngRoute','uiGmapgoogle-maps','karttaMain']).
 config(['$routeProvider', function($routeProvider) {
-  $routeProvider.
-  otherwise({redirectTo: '/'});
+  $routeProvider
+  		.otherwise({redirectTo: '/'});
 }]).
 config(function(uiGmapGoogleMapApiProvider) {
     uiGmapGoogleMapApiProvider.configure({

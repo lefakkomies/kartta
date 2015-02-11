@@ -17,7 +17,13 @@ module.exports = function(io, socket) {
         message.type = 'message';
         message.created = Date.now();
         message.username = 'dummy';
-        message.kartta_response_text = "r: "+message.text+" Lat:"+message.messageLatitude.toString()+" Lon:"+message.messageLongitude.toString();
+        if (message.messageLatitude || message.messageLongitude) {
+        message.kartta_response_text = "r: "+message.text+
+        " Lat:"+message.messageLatitude.toString()+
+        " Lon:"+message.messageLongitude.toString(); 
+        } else {
+        message.kartta_response_text = "did not get you :(";
+        }
         io.emit('karttaMessage', message);   
     });
 
