@@ -4,7 +4,7 @@
 <div class='container'>
     
     <div class=" center text-center">
-    <h1>Welkome to Track-rooms!</h1>
+    <h1>Welkome to TrackRooms!</h1>
     </div><div class=""></div>
     <form name="inputRoomForm">
         
@@ -23,7 +23,7 @@
                     'has-error':  inputRoomForm.trackroom.$error.minlength,  
                     'has-success': !inputRoomForm.trackroom.$error.minlength}">
         
-       <div class="">Trackroom:</div> <input class=" input-lg text-center form-control" type="text" name="trackroom" ng-model="userstate.trackroom" value="" required ng-minlength="3" ng-maxlength="100">
+       <div class="">TrackRoom:</div> <input class=" input-lg text-center form-control" type="text" name="trackroom" ng-model="userstate.trackroom" value="" required ng-minlength="3" ng-maxlength="100">
     <div class="alert alert-danger" ng-show="inputRoomForm.trackroom.$error.minlength">Trackroom too short!</div>
     <div class="alert alert-danger" ng-show="inputRoomForm.trackroom.$error.maxlength">Trackroom too long!</div>
     <div class="alert alert-danger" ng-show="inputRoomForm.trackroom.$error.required">Trackroom is required!</div>
