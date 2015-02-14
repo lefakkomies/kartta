@@ -1,10 +1,10 @@
 
-<section class=' well well-lg' data-ng-controller="karttaMainController">
+<section class=' well well-lg' data-ng-controller="karttaEnterRoomController">
 <div class='row'>
 <div class='container'>
     
     <div class=" center text-center">
-    <h1>Welkome to TrackRooms!</h1>
+    <h1>Welcome to TrackRooms!</h1>
     </div><div class=""></div>
     <form name="inputRoomForm">
         
@@ -31,7 +31,7 @@
     <div class=""></div>
    
     <div class=" text-center col-sm-4 col-sm-offset-4">    
-    <a  href="/#/kartta" role="button" class="btn btn-success btn-large" ng-disabled="inputRoomForm.$invalid" placeholder=".col-sm-2 .col-sm-offset-4">Enter {{userstate.trackroom}}</a>
+    <button  ng-click="goTrackRoom()" class="btn btn-success btn-large" ng-disabled="inputRoomForm.$invalid" placeholder=".col-sm-2 .col-sm-offset-4">Enter {{userstate.trackroom}}</button>
     </div>
     <div class=" "></div>
      </form>

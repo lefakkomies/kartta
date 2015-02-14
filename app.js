@@ -57,9 +57,6 @@ app.use(function(err, req, res, next) {
     });
 });
 
-
-
-
 var debug = require('debug')('kartta:server');
 var http = require('http');
 
@@ -81,8 +78,14 @@ var server = http.createServer(app);
  */
 var io = socketio.listen(server);
 
+var socketData = {
+		trackRooms: {}, // room -> info
+		idRooms: {}, // id -> room
+    	isInRoom: {} // whether key=id is in room or in "lobby"
+}; 
+
 io.sockets.on('connection', function(socket){
-        require('./app/controllers/socket.server.controller')(io, socket);
+        require('./app/controllers/socket.server.controller')(io, socket, socketData);
         });
 
 /**

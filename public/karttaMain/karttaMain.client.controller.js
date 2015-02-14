@@ -3,13 +3,15 @@
 
 
 // Create  'karttaMain' controller
-angular.module('karttaMain').controller('karttaMainController', ['$scope', 'SocketIO','uiGmapGoogleMapApi','UserState',
-    function($scope, SocketIO,uiGmapGoogleMapApi,UserState) {
+angular.module('karttaMain').controller('karttaMainController', ['$scope', '$location','SocketIO','uiGmapGoogleMapApi','UserState',
+    function($scope, $location, SocketIO,uiGmapGoogleMapApi,UserState) {
         // Store messages
         $scope.userstate = UserState;
         $scope.messages = [];
         var counter = 0;
         // Add an event listener to the 'karttaMessage' event
+        // /#/
+        
         SocketIO.on('karttaMessage', function(message) {
             console.log(message);
             //$scope.messages.push(message);
@@ -30,6 +32,27 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', 'Sock
             }
         });
         
+        SocketIO.on('karttaRoomUpdateMessage', function(message) {
+            console.log(message);
+            //$scope.messages.push(message);
+            $scope.messages.splice(0, 0, message);
+        });
+        
+        // returns to start page
+        $scope.returnToStart = function () {
+        console.log("leaving page...");
+        SocketIO.emit('karttaLeaveTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
+		$location.path("/");
+ 		}
+        
+        // go to TrackRoom
+        $scope.goTrackRoom = function () {
+        console.log(UserState.name+" goes to trackRoom "+UserState.trackroom);
+        SocketIO.emit('karttaEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
+		$location.path("/kartta");
+ 		}
+        
+        
         // Create a controller method for sending messages
         $scope.sendMessage = function() {
         	// Create a new message object
@@ -47,11 +70,12 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', 'Sock
         }
         // for sending test command
         $scope.testMessage = function() {
-                SocketIO.emit('karttaMessage', {text: "This is a test message"});
+            SocketIO.emit('karttaMessage', {text: "This is a test message"});
         }
 
         // Remove the event listener when the controller instance is destroyed
         $scope.$on('$destroy', function() {
+            SocketIO.emit('karttaDestroy', {name: UserState.name, trackroom: UserState.trackroom});
             SocketIO.removeListener('karttaMessage');
         });
 
@@ -85,18 +109,29 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', 'Sock
         $scope.testMap = function() {
                 //$scope.map = { center: { latitude: 55, longitude: -73 }, zoom: 6 };
             	$scope.map = { center: { latitude: 55, longitude: -73 }, zoom: 8 };
-            	/*
-            	$scope.karttaMarkers.push({
-                                            latitude: 55+counter,
-                                            longitude: -73+counter,
-                                            title: "Hello there",
-                    						id: counter 
-                						});
-            	counter += 0.1;*/
-            	//console.log($scope.karttaMarkers);
               };
         	
 		
    
     }
 ]); 
+
+// Controller for enter view
+//
+angular.module('karttaMain').controller('karttaEnterRoomController', ['$scope', '$location','SocketIO','UserState',
+    function($scope, $location, SocketIO, UserState) {
+        // Store messages
+        $scope.userstate = UserState;
+        $scope.messages = [];
+
+        // go to TrackRoom
+        $scope.goTrackRoom = function () {
+        console.log(UserState.name+" goes to trackRoom "+UserState.trackroom);
+        SocketIO.emit('karttaEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
+		$location.path("/kartta");
+ 		}
+        
+        
+        
+        
+    }]);
