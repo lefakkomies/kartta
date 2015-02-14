@@ -6,18 +6,39 @@
     <div class=" center text-center">
     <h1>Welkome to Track-rooms!</h1>
     </div><div class=""></div>
-    <div class="text-center">
-    <p>Name: <input class="input-lg text-center" type="text" ng-model="userstate.name" value=""></p>
+    <form name="inputRoomForm">
+        
+    <div class="text-center form-group col-sm-4 col-sm-offset-4" ng-class="{  
+                    'has-error':  inputRoomForm.username.$error.minlength,  
+                    'has-success': !inputRoomForm.username.$error.minlength}">
+    <div class="">Name:</div> <input class=" input-lg text-center form-control" type="text" name="username" ng-model="userstate.name" ng-minlength="3" ng-maxlength="100" required placeholder=".col-sm-2 .col-sm-offset-4">
+    <div class="alert alert-danger" ng-show="inputRoomForm.username.$error.minlength">Name too short!</div>
+    <div class="alert alert-danger" ng-show="inputRoomForm.username.$error.maxlength">Name too long!</div>
+    <div class="alert alert-danger" ng-show="inputRoomForm.username.$error.required">Username is required!</div>
+    <span ng-show="inputRoomForm.username.$error.required">Username is required.</span>
+     
+    <span class="error" ng-show="inputRoomForm.username.$error.minlength">
+      Name too short!</span>
     </div>
     <div class=""></div>
-    <div class="text-center">
-    <p>Trackroom: <input class="input-lg text-center" type="text" ng-model="userstate.trackroom" value=""></p>
+    
+    
+    <div class="text-center form-group col-sm-4 col-sm-offset-4" ng-class="{  
+                    'has-error':  inputRoomForm.trackroom.$error.minlength,  
+                    'has-success': !inputRoomForm.trackroom.$error.minlength}">
+        
+        <p><div class="">Trackroom:</div> <input class=" input-lg text-center form-control" type="text" name="trackroom" ng-model="userstate.trackroom" value="" required ng-minlength="3" ng-maxlength="100" placeholder=".col-sm-2 .col-sm-offset-4"></p>
+    <span ng-show="inputRoomForm.trackroom.$error.required">Trackroom is required.</span>
+    <span class="error" ng-show="inputRoomForm.trackroom.$error.minlength">Trackroom name too short!</span>
+    <span class="error" ng-show="inputRoomForm.trackroom.$error.maxlength">Trackroom name too long!</span>
     </div>
     <div class=""></div>
-    <div class=" text-center">    
-    <a  href="/#/kartta" role="button" class="btn btn-success btn-large">Enter {{userstate.trackroom}}</a>
+   
+    <div class=" text-center col-sm-4 col-sm-offset-4">    
+    <a  href="/#/kartta" role="button" class="btn btn-success btn-large" ng-disabled="inputRoomForm.$invalid" placeholder=".col-sm-2 .col-sm-offset-4">Enter {{userstate.trackroom}}</a>
     </div>
     <div class=" "></div>
+     </form>
     </div>
 </div>
     </section>
