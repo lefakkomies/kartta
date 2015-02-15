@@ -1,6 +1,6 @@
 <!-- The main view -->
 
-<section class='' data-ng-controller="karttaMainController">
+<section class='' ng-controller="karttaMainController">
     
 
     
@@ -23,21 +23,20 @@
 <div class="col-md-12">
 <span ng-repeat="(key, value) in userinfo">
 <button class="btn btn-primary btn-xs" style="background-color: {{value.color}}; border-color: {{value.color}}; border-width: 5px; border-radius: 20px;" ng-click="userButtonPressed(key)">
-         <span class="badge">{{ value.name }}</span>
+         <span class="badge">{{ value.name }}:{{ value.id }}</span>
 </button>
 </span>
 </div>
 <div class="angular-google-map-container col-md-12">    
-<ui-gmap-google-map center='map.center' zoom='map.zoom'>
+<ui-gmap-google-map center='map.center' zoom='map.zoom' options="options">
     
-	<ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id">
-    </ui-gmap-marker>
-    <ui-gmap-markers models="karttaMarkers" coords="'self'" icon="'icon'">
+
+    <ui-gmap-markers models="userMarkers" coords="'self'" icon="'icon'" doRebuildAll="true" idKey="'idKey'">
         </ui-gmap-markers>
 </ui-gmap-google-map>    
 </div>
     <div class="well col-md-12">            
-<button class="btn btn-primary btn-xs" ng-click="testMessage()">
+<button class="btn btn-primary btn-xs" ng-click="toggleTracking()">
         SHOW POSITION 
         </button>
 <button class="btn btn-primary btn-xs" ng-click="testMap()">

@@ -7,6 +7,7 @@ angular.module('karttaMain').service('UserState', ['SocketIO',
         function(socketio) {
         this.name = "Matti Meikäläinen";
         this.trackroom = "my_secret_map";
+        //this.id = 0; // will be populated with socket hash
         this.color = "#FFFFFF"; // dummy first color
         console.log("Service loaded. Name = "+this.name);
 		// 'on'
