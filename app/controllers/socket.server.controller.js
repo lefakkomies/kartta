@@ -1,9 +1,16 @@
 // Invoke 'strict' JavaScript mode
 'use strict';
 
+var RandomColor = require('randomcolor');
+
 // Create the configuration
 // socketData holds info about trackrooms and users
 module.exports = function(io, socket, socketData) {
+    
+    // Specific socket constants
+    var userColor = RandomColor.randomColor(); // generate once
+    // console.log(userColor);
+    
     // Emit the status event when a new socket client is connected
     io.emit('karttaMessage', {
         type: 'status',
@@ -41,7 +48,8 @@ module.exports = function(io, socket, socketData) {
     
     // Enter room
     socket.on('karttaEnterTrackRoom', function(message) {
-        joinMap(socket, io, message, socketData);
+        //joinMap(socket, io, message, socketData);
+        joinMap(message);
     });
     
     // Leave room
@@ -53,9 +61,40 @@ module.exports = function(io, socket, socketData) {
         //console.log("Destroy controller");
         //console.log(message);
     });
+    
+	// internal
+    
+    function joinMap(message) {
+    console.log("Entering trackroom");
+    console.log(message);
+    var roomKey = message.trackroom;
+
+    if (!socketData.trackRooms[roomKey]) {// trackroom does not exist yet
+        socketData.trackRooms[roomKey] = {};
+    }
+    var id_name = message.name;
+    socketData.trackRooms[roomKey][socket.id] = {name: id_name, color: userColor};
+    socketData.idRooms[socket.id] = roomKey;
+    socketData.idNames[socket.id] = id_name; 
+    socketData.isInRoom[socket.id] = true;
+    socket.join(roomKey);
+    var new_message = {
+        name: message.name,
+        text: message.name + " joined",
+        created: Date.now(),
+        roominfo: socketData.trackRooms[roomKey]
+    };
+    socket.broadcast.to(roomKey).emit('karttaRoomStatusUpdate', new_message);
+    socket.emit('karttaRoomStatusUpdate', new_message); // also to yourself
+    console.log("** ROOMDATA **");
+    console.log(socketData.trackRooms[roomKey]);
+    //io.emit('karttaTrackRoomStatusUpdate', message);     
+	   
+}
+    
 };
 
-
+/*
 function joinMap(socket, io, message, socketData) {
     console.log("Entering trackroom");
     console.log(message);
@@ -83,7 +122,7 @@ function joinMap(socket, io, message, socketData) {
     //io.emit('karttaTrackRoomStatusUpdate', message);     
 	   
 }
-
+*/
 // leave the map
 function leaveMap(socket, io, socketData) {
         var roomKey = socketData.idRooms[socket.id];

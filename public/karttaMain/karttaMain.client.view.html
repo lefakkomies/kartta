@@ -10,14 +10,7 @@
     
 <div class='container'>
     <div class="col-md-12"></div>    
-<div class="col-md-12 well">
-<span ng-repeat="(key, value) in userinfo">
-<button class="btn btn-primary btn-xs" ng-click="userButtonPressed(key)">
-        {{key}} : {{ value.name }}
-</button>
-</span>
-</div>    
-
+    
     
     
 <div class="row well well-lg"> 
@@ -27,6 +20,13 @@
     <div class="col-md-4">
     <button class="btn btn-success btn-large" ng-click="returnToStart()">Leave {{userstate.trackroom}}</button>
     </div>
+<div class="col-md-12">
+<span ng-repeat="(key, value) in userinfo">
+<button class="btn btn-primary btn-xs" style="background-color: {{value.color}}; border-color: {{value.color}}; border-width: 5px; border-radius: 20px;" ng-click="userButtonPressed(key)">
+         <span class="badge">{{ value.name }}</span>
+</button>
+</span>
+</div>
 <div class="angular-google-map-container col-md-12">    
 <ui-gmap-google-map center='map.center' zoom='map.zoom'>
     
@@ -38,7 +38,7 @@
 </div>
     <div class="well col-md-12">            
 <button class="btn btn-primary btn-xs" ng-click="testMessage()">
-        TEST 
+        SHOW POSITION 
         </button>
 <button class="btn btn-primary btn-xs" ng-click="testMap()">
         MAP TEST

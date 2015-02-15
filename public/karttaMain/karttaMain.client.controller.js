@@ -9,12 +9,13 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         $scope.userstate = UserState;
         $scope.messages = [];
         $scope.userinfo = {};
+        $scope.watchID = 0;
         var counter = 0;
         // Add an event listener to the 'karttaMessage' event
         // /#/
         
         SocketIO.on('karttaMessage', function(message) {
-            console.log(message);
+            //console.log(message);
             //$scope.messages.push(message);
             $scope.messages.splice(0, 0, message);
             if (message.messageLatitude || message.messageLongitude) {
@@ -37,7 +38,6 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             console.log(message);
             $scope.userinfo = message.roominfo;
             console.log("DATAA");
-            console.log($scope.userinfo);
             console.log($scope.userinfo);
             //$scope.messages.push(message);
             $scope.messages.splice(0, 0, message);
@@ -80,27 +80,52 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         }
         // for sending test command
         $scope.testMessage = function() {
-            SocketIO.emit('karttaMessage', {text: "This is a test message"});
+            if ($scope.watchID == 0) {
+            if (navigator.geolocation) {
+        		$scope.watchID = navigator.geolocation.watchPosition(function(position){
+                    var info = {
+                    	latitude: position.coords.latitude,
+                    	longitude: position.coords.longitude,
+                    	text: "Update position",
+                    	id: 1 
+                       };
+                    if (counter==0) {
+                		$scope.karttaMarkers.push(info);
+                    	counter += 0.1;
+                	} else {
+                		$scope.karttaMarkers[0] = info;   
+                	} 
+                    SocketIO.emit('karttaMessage', {
+                    	messageLongitude:position.coords.longitude,
+                    	messageLatitude:position.coords.latitude,
+                    	text: "Update position!"});
+                });
+    			}
+            } else {
+            navigator.geolocation.clearWatch($scope.watchID); // stop watching
+            $scope.watchID = 0;    
+        }
         }
 
         // Remove the event listener when the controller instance is destroyed
         $scope.$on('$destroy', function() {
             SocketIO.emit('karttaDestroy', {name: UserState.name, trackroom: UserState.trackroom});
             SocketIO.removeListener('karttaMessage');
+            navigator.geolocation.clearWatch($scope.watchID); // stop watching pos
         });
 
         // uiGmapGoogleMapApi is a promise.
     	// The "then" callback function provides the google.maps object.
         uiGmapGoogleMapApi.then(function(maps) {
-            $scope.map = { center: { latitude: 45, longitude: -73 }, zoom: 8 };
+            $scope.map = { center: { latitude: 60.26, longitude: 24.84 }, zoom: 12 };
 			$scope.karttaMarkers = [];
-        	console.log('map: ', maps);
-			console.log("loaded googlemaps api");
+        	//console.log('map: ', maps);
+			//console.log("loaded googlemaps api");
             $scope.marker = {
               id: "101",
               coords: {
-                    latitude: 45.0,
-                    longitude: -73.0
+                    latitude: 60.2,
+                    longitude: 24.8
                   },
               options: { draggable: false },
               events: {
