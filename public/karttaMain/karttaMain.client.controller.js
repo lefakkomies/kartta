@@ -8,6 +8,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         // Store messages
         $scope.userstate = UserState;
         $scope.messages = [];
+        $scope.userinfo = {};
         var counter = 0;
         // Add an event listener to the 'karttaMessage' event
         // /#/
@@ -32,11 +33,20 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             }
         });
         
-        SocketIO.on('karttaRoomUpdateMessage', function(message) {
+        SocketIO.on('karttaRoomStatusUpdate', function(message) {
             console.log(message);
+            $scope.userinfo = message.roominfo;
+            console.log("DATAA");
+            console.log($scope.userinfo);
+            console.log($scope.userinfo);
             //$scope.messages.push(message);
             $scope.messages.splice(0, 0, message);
         });
+        
+        // user button pressed
+        $scope.userButtonPressed = function(id) {
+            console.log("User button pressed with id:"+id+"and username "+$scope.userinfo[id].name);
+        }
         
         // returns to start page
         $scope.returnToStart = function () {

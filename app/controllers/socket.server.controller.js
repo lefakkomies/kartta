@@ -31,47 +31,22 @@ module.exports = function(io, socket, socketData) {
 
     // Disconnections
     socket.on('disconnect', function() {
+        leaveMap(socket, io, socketData);
         console.log("Disconnecting id:"+socket.id);
     });
     
-    // kartta logic
+    /* 
+    * kartta logic
+    */
+    
     // Enter room
     socket.on('karttaEnterTrackRoom', function(message) {
-        console.log("Entering trackroom");
-        console.log(message);
-        var roomKey = message.trackroom;
-        
-        if (!socketData.trackRooms[roomKey]) {// trackroom does not exist yet
-            socketData.trackRooms[roomKey] = {};
-        }
-        socketData.trackRooms[roomKey][socket.id] = {name: message.name};
-        socketData.idRooms[socket.id] = roomKey;
-        socketData.isInRoom[socket.id] = true;
-        socket.join(roomKey);
-        socket.broadcast.to(roomKey).emit('karttaRoomUpdateMessage', {
-            name: message.name,
-            text: message.name + " joined",
-            created: Date.now()
-        });
-        console.log(socketData.trackRooms[roomKey]);
-        
-        io.emit('karttaEnterTrackRoomStatus', message); 
+        joinMap(socket, io, message, socketData);
     });
+    
     // Leave room
     socket.on('karttaLeaveTrackRoom', function(message) {
-        var roomKey = message.trackroom;
-        if (roomKey && socketData.trackRooms[roomKey] && socketData.trackRooms[roomKey][socket.id]) {
-        	delete socketData.trackRooms[roomKey][socket.id];
-        	}
-        socketData.isInRoom[socket.id] = false;
-        socketData.idRooms[socket.id] = "this_is_no_room_sdfhakjhfbvjh"; // dummy string
-                socket.broadcast.to(roomKey).emit('karttaRoomUpdateMessage', {
-            name: message.name,
-            text: message.name + " left",
-            created: Date.now()
-        });
-        //console.log("Leaving trackroom id:"+socket.id);
-        //console.log(socketData.trackRooms);
+        leaveMap(socket, io, socketData);
     });
     // Destroy angular controller
     socket.on('karttaDestroy', function(message) {
@@ -79,3 +54,59 @@ module.exports = function(io, socket, socketData) {
         //console.log(message);
     });
 };
+
+
+function joinMap(socket, io, message, socketData) {
+    console.log("Entering trackroom");
+    console.log(message);
+    var roomKey = message.trackroom;
+
+    if (!socketData.trackRooms[roomKey]) {// trackroom does not exist yet
+        socketData.trackRooms[roomKey] = {};
+    }
+    var id_name = message.name;
+    socketData.trackRooms[roomKey][socket.id] = {name: id_name};
+    socketData.idRooms[socket.id] = roomKey;
+    socketData.idNames[socket.id] = id_name; 
+    socketData.isInRoom[socket.id] = true;
+    socket.join(roomKey);
+    var new_message = {
+        name: message.name,
+        text: message.name + " joined",
+        created: Date.now(),
+        roominfo: socketData.trackRooms[roomKey]
+    };
+    socket.broadcast.to(roomKey).emit('karttaRoomStatusUpdate', new_message);
+    socket.emit('karttaRoomStatusUpdate', new_message); // also to yourself
+    console.log("** ROOMDATA **");
+    console.log(socketData.trackRooms[roomKey]);
+    //io.emit('karttaTrackRoomStatusUpdate', message);     
+	   
+}
+
+// leave the map
+function leaveMap(socket, io, socketData) {
+        var roomKey = socketData.idRooms[socket.id];
+        if (roomKey && socketData.trackRooms[roomKey] && socketData.trackRooms[roomKey][socket.id]) {
+        	delete socketData.trackRooms[roomKey][socket.id];
+        	}
+        socketData.isInRoom[socket.id] = false;
+        socketData.idRooms[socket.id] = socket.id; // start-room
+    	var id_name = socketData.idNames[socket.id] || "unknown";
+        socket.broadcast.to(roomKey).emit('karttaRoomStatusUpdate', {
+            name: id_name,
+            text: id_name + " left",
+            created: Date.now(),
+            roominfo: socketData.trackRooms[roomKey]
+        });
+        //console.log("Leaving trackroom id:"+socket.id);
+        //console.log(socketData.trackRooms);
+    }
+
+
+    
+    
+    
+    
+    
+    

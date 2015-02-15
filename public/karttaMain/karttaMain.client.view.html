@@ -1,7 +1,25 @@
 <!-- The main view -->
 
 <section class='' data-ng-controller="karttaMainController">
+    
+
+    
+
+
+ 
+    
 <div class='container'>
+    <div class="col-md-12"></div>    
+<div class="col-md-12 well">
+<span ng-repeat="(key, value) in userinfo">
+<button class="btn btn-primary btn-xs" ng-click="userButtonPressed(key)">
+        {{key}} : {{ value.name }}
+</button>
+</span>
+</div>    
+
+    
+    
 <div class="row well well-lg"> 
   
     <div class="col-md-7"><p class='lead'>You, <strong>{{userstate.name}}</strong>, are in TrackRoom <strong>{{userstate.trackroom}}</strong>. </p></div>

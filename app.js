@@ -81,6 +81,7 @@ var io = socketio.listen(server);
 var socketData = {
 		trackRooms: {}, // room -> info
 		idRooms: {}, // id -> room
+    	idNames: {}, // id -> name
     	isInRoom: {} // whether key=id is in room or in "lobby"
 }; 
 
