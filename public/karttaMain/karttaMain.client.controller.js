@@ -6,6 +6,8 @@
 angular.module('karttaMain').controller('karttaMainController', ['$scope', '$location','SocketIO','uiGmapGoogleMapApi','UserState',
     function($scope, $location, SocketIO,uiGmapGoogleMapApi,UserState) {
         // Store messages
+        var myName = "noname"; // to be updated
+        var myColor = "#ffffff"; // to be updated
         $scope.userstate = UserState;
         $scope.messages = [];
         $scope.userinfo = {}; // info on users in the curret trackroom
@@ -13,9 +15,14 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         var hash2IntId = {};
         var counter = 1;
         var positionMessageCounter = 0; // for looking how many messages sent
+        var _maps; // handle to google maps
         
         $scope.userMarkers = []; // holds info of markers
         var _userMarkers = []; // for populating
+        
+        // Post that entered into TrackRoom
+        SocketIO.emit('karttaEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom,
+                                               color: UserState.color});
         
         // General listener to 'karttaMessage' event        
         SocketIO.on('karttaMessage', function(message) {
@@ -32,6 +39,10 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         SocketIO.on('karttaRoomStatusUpdate', function(message) {
             console.log(message);
             $scope.userinfo = message.roominfo;
+            if ($scope.userinfo[SocketIO.socket.id]) {
+            	myName = $scope.userinfo[SocketIO.socket.id].name;
+            	myColor = $scope.userinfo[SocketIO.socket.id].color;
+                }
             console.log("DATAA");
             console.log($scope.userinfo);
             //$scope.messages.push(message);
@@ -79,7 +90,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
                     	longitude: lon,
                     	text: "Update position",
                     	id: SocketIO.socket.id, 
-                        number: positionMessageCounter
+                        number: positionMessageCounter,
                        };
                     positionMessageCounter++;
                     /*
@@ -119,26 +130,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             $scope.map = { center: { latitude: 60.26, longitude: 24.84 }, zoom: 12 };
             $scope.options = {scrollwheel: false};
 			$scope.karttaMarkers = [];
-        	//console.log('map: ', maps);
-			//console.log("loaded googlemaps api");
-            /*
-            $scope.marker = {
-              id: "101",
-              coords: {
-                    latitude: 60.2,
-                    longitude: 24.8
-                  },
-              options: { draggable: false },
-              events: {
-                    dragend: function (marker, eventName, args) {
-                        $log.log('marker dragend');
-                        var lat = marker.getPosition().lat();
-                        var lon = marker.getPosition().lng();
-                        $log.log(lat);
-                        $log.log(lon);
-            			}
-      				}
-    	};*/
+            _maps = maps; 
         });
         
         // for test changing map position
@@ -170,6 +162,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
     function updateMarker(markerinfo) {
                 // find if hash has marker and update
         		if (hash2IntId[markerinfo.id]) { // marker for given hash exist
+                   var markerColor = $scope.userinfo[markerinfo.id].color;
                    var markerIntID = hash2IntId[markerinfo.id];
                    console.log("Usermarkers");
                    console.log(_userMarkers);
@@ -187,10 +180,24 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
                 })) { // found
                 	_userMarkers[foundIndex] = markerinfo;
                     _userMarkers[foundIndex].idKey = markerIntID;
+                    _userMarkers[foundIndex].icon = {
+      						path: _maps.SymbolPath.CIRCLE,
+      						scale: 10,
+                        	strokeWeight:2,
+                        	fillColor: markerColor,
+                    		strokeColor: markerColor,
+                    		fillOpacity:0.4}
                    }
                 } else { // given id does not have marker            
                        hash2IntId[markerinfo.id] = counter; // save integer counter
                        markerinfo.idKey = counter;
+                       markerinfo.icon = {
+      						path: _maps.SymbolPath.CIRCLE,
+      						scale: 10,
+                        	strokeWeight:2,
+                        	fillColor: markerColor,
+                    		strokeColor: markerColor,
+                    		fillOpacity:0.4}
                        counter++;
                        _userMarkers.push(markerinfo);
                                }
@@ -211,7 +218,8 @@ angular.module('karttaMain').controller('karttaEnterRoomController', ['$scope', 
         // go to TrackRoom
         $scope.goTrackRoom = function () {
         console.log(UserState.name+" goes to trackRoom "+UserState.trackroom);
-        SocketIO.emit('karttaEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
+        //SocketIO.emit('karttaEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom,
+        //                                       color: UserState.color});
         //$scope.userstate.id = SocketIO.socket.id; // take directly
 		$location.path("/kartta");
  		}
