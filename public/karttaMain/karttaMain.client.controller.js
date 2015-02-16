@@ -128,7 +128,13 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
     	// The "then" callback function provides the google.maps object.
         uiGmapGoogleMapApi.then(function(maps) {
             $scope.map = { center: { latitude: 60.26, longitude: 24.84 }, zoom: 12 };
-            $scope.options = {scrollwheel: false};
+            //$scope.options = {scrollwheel: false};
+            //$scope.options = customMapStyleOptions;
+            $scope.options = {
+                		scrollwheel: false,
+   						styles: customMapStyleOptions,
+			};
+            //console.log($scope.options);
 			$scope.karttaMarkers = [];
             _maps = maps; 
         });
@@ -228,3 +234,42 @@ angular.module('karttaMain').controller('karttaEnterRoomController', ['$scope', 
         
         
     }]);
+
+// save test style
+var customMapStyleOptions = [
+  {
+    "stylers": [
+      { "visibility": "on" }
+    ]
+  },{
+    "featureType": "landscape",
+    "stylers": [
+      { "hue": "#00ffcc" }
+    ]
+  },{
+    "featureType": "road",
+    "stylers": [
+      { "hue": "#ff0000" },
+      { "gamma": 0.16 },
+      { "lightness": 23 }
+    ]
+  },{
+    "featureType": "road.local",
+    "stylers": [
+      { "hue": "#ff0000" },
+      { "gamma": 1.79 }
+    ]
+  },{
+    "featureType": "poi.business",
+    "stylers": [
+      { "lightness": 73 },
+      { "visibility": "off" }
+    ]
+  },{
+    "elementType": "labels.text",
+    "stylers": [
+      { "weight": 0.1 },
+      { "visibility": "simplified" }
+    ]
+  }
+];
