@@ -21,11 +21,11 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         var _userMarkers = []; // for populating
         
         // Post that entered into TrackRoom
-        SocketIO.emit('karttaEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom,
+        SocketIO.emit('kEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom,
                                                color: UserState.color});
         
         // General listener to 'karttaMessage' event        
-        SocketIO.on('karttaMessage', function(message) {
+        SocketIO.on('kMessage', function(message) {
             //console.log(message);
             //$scope.messages.push(message);
             $scope.messages.splice(0, 0, message);
@@ -36,7 +36,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
 			}        
         });
         
-        SocketIO.on('karttaRoomStatusUpdate', function(message) {
+        SocketIO.on('kRoomStatusUpdate', function(message) {
             console.log(message);
             $scope.userinfo = message.roominfo;
             if ($scope.userinfo[SocketIO.socket.id]) {
@@ -59,7 +59,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         console.log("leaving page...");
 		// TODO remove marker
         navigator.geolocation.clearWatch($scope.watchID); // stop watching pos
-        SocketIO.emit('karttaLeaveTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
+        SocketIO.emit('kLeaveTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
 		$location.path("/");
  		}
         
@@ -73,7 +73,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             };
             console.log(message);
             // Emit a 'karttaMessage' message event
-            SocketIO.emit('karttaMessage', message);
+            SocketIO.emit('kMessage', message);
             
             // Clear the message text
             this.messageText = '';
@@ -102,7 +102,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
                 	} 
                     */
                     // Send position information
-                    SocketIO.emit('karttaMessage', {
+                    SocketIO.emit('kMessage', {
                     	messageLongitude:lat,
                     	messageLatitude:lon,
                     	text: "Update pos of name:"+UserState.name,
@@ -119,8 +119,8 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
 
         // Remove the event listener when the controller instance is destroyed
         $scope.$on('$destroy', function() {           
-		SocketIO.removeListener('karttaMessage');   
-        SocketIO.removeListener('karttaRoomStatusUpdate');
+		SocketIO.removeListener('kMessage');   
+        SocketIO.removeListener('kRoomStatusUpdate');
         });
         
 
@@ -217,13 +217,15 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
 //
 angular.module('karttaMain').controller('karttaEnterRoomController', ['$scope', '$location','SocketIO','UserState',
     function($scope, $location, SocketIO, UserState) {
+        // take reference
+        var enterRoom = this;
         // Store messages
-        $scope.userstate = UserState;
-        $scope.messages = [];
+        this.userstate = UserState;
+        this.messages = [];
 
         // go to TrackRoom
-        $scope.goTrackRoom = function () {
-        console.log(UserState.name+" goes to trackRoom "+UserState.trackroom);
+        this.goTrackRoom = function () {
+        console.log(UserState.name + " goes to trackRoom " + UserState.trackroom);
         //SocketIO.emit('karttaEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom,
         //                                       color: UserState.color});
         //$scope.userstate.id = SocketIO.socket.id; // take directly

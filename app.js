@@ -82,9 +82,10 @@ var socketData = {
 		trackRooms: {}, // room -> info
 		idRooms: {}, // id -> room
     	idNames: {}, // id -> name
-    	isInRoom: {} // whether key=id is in room or in "lobby"
+    	//isInRoom: {} // whether key=id is in room or in "lobby"
 }; 
 
+// on every new connection
 io.sockets.on('connection', function(socket){
         require('./app/controllers/socket.server.controller')(io, socket, socketData);
         });

@@ -57,7 +57,7 @@
         <!-- Status messages bolder -->
         <strong data-ng-switch-when='status'>
                 <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-            <span data-ng-bind="message.created | date:'mediumTime'"></span>
+            <span data-ng-bind="message.date | date:'mediumTime'"></span>
                 <span class="glyphicon glyphicon-leaf" aria-hidden="true"></span>
             <span></span>
             <span data-ng-bind="message.text"></span>

@@ -8,19 +8,19 @@ var RandomColor = require('randomcolor');
 module.exports = function(io, socket, socketData) {
     
     // Specific socket constants
-    var userColor = RandomColor.randomColor(); // generate once
+    var userColor = RandomColor.randomColor({luminosity: 'dark'}); // generate once
     // console.log(userColor);
     
     // Emit the status event when a new socket client is connected
-    io.emit('karttaMessage', {
+    io.emit('kMessage', {
         type: 'status',
         text: 'connected',
-        created: Date.now(),
-        username: 'dummy'
+        date: Date.now(),
+        username: 'noname'
     });
 
     // Send a xmos messages to all connected sockets when a message is received 
-    socket.on('karttaMessage', function(message) {
+    socket.on('kMessage', function(message) {
         console.log(message);
         message.type = 'message';
         message.created = Date.now();
@@ -32,13 +32,17 @@ module.exports = function(io, socket, socketData) {
         } else {
         message.kartta_response_text = "did not get you :(";
         }
-        io.emit('karttaMessage', message);   
+        io.emit('kMessage', message);   
     });
 
 
     // Disconnections
     socket.on('disconnect', function() {
+        // logic for leaving the server
         leaveMap(socket, io, socketData);
+        if (socketData.idNames[socket.id]) {
+            delete socketData.idNames[socket.id];
+        }
         console.log("Disconnecting id:"+socket.id);
     });
     
@@ -47,20 +51,21 @@ module.exports = function(io, socket, socketData) {
     */
     
     // Enter room
-    socket.on('karttaEnterTrackRoom', function(message) {
+    socket.on('kEnterTrackRoom', function(message) {
         //joinMap(socket, io, message, socketData);
         joinMap(message);
     });
     
     // Leave room
-    socket.on('karttaLeaveTrackRoom', function(message) {
+    socket.on('kLeaveTrackRoom', function(message) {
         leaveMap(socket, io, socketData);
     });
     // Destroy angular controller
-    socket.on('karttaDestroy', function(message) {
+    /*
+    socket.on('kDestroy', function(message) {
         //console.log("Destroy controller");
         //console.log(message);
-    });
+    });*/
     
 	// internal
     
@@ -76,21 +81,43 @@ module.exports = function(io, socket, socketData) {
     socketData.trackRooms[roomKey][socket.id] = {name: id_name, color: userColor};
     socketData.idRooms[socket.id] = roomKey;
     socketData.idNames[socket.id] = id_name; 
-    socketData.isInRoom[socket.id] = true;
+    //socketData.isInRoom[socket.id] = true;
     socket.join(roomKey);
     var new_message = {
         name: message.name,
         text: message.name + " joined",
-        created: Date.now(),
+        date: Date.now(),
         roominfo: socketData.trackRooms[roomKey]
     };
-    socket.broadcast.to(roomKey).emit('karttaRoomStatusUpdate', new_message);
-    socket.emit('karttaRoomStatusUpdate', new_message); // also to yourself
+    socket.broadcast.to(roomKey).emit('kRoomStatusUpdate', new_message);
+    socket.emit('kRoomStatusUpdate', new_message); // also to yourself
     console.log("** ROOMDATA **");
     console.log(socketData.trackRooms[roomKey]);
     //io.emit('karttaTrackRoomStatusUpdate', message);     
 	   
 }
+
+// leave the map
+	function leaveMap(socket, io, socketData) {
+        var roomKey = socketData.idRooms[socket.id];
+        //socketData.isInRoom[socket.id] = false;
+        //socketData.idRooms[socket.id] = socket.id; // start-room
+    	var id_name = socketData.idNames[socket.id] || "unknown";
+        socket.broadcast.to(roomKey).emit('karttaRoomStatusUpdate', {
+            name: id_name,
+            text: id_name + " left",
+            date: Date.now(),
+            roominfo: socketData.trackRooms[roomKey]
+        });          
+    	if (roomKey && socketData.trackRooms[roomKey] && socketData.trackRooms[roomKey][socket.id]) {
+        	delete socketData.trackRooms[roomKey][socket.id];
+        }
+        if (socketData.idRooms[socket.id]) {
+    		delete socketData.idRooms[socket.id];
+        }
+        //console.log("Leaving trackroom id:"+socket.id);
+        //console.log(socketData.trackRooms);
+    }    
     
 };
 
@@ -123,24 +150,7 @@ function joinMap(socket, io, message, socketData) {
 	   
 }
 */
-// leave the map
-function leaveMap(socket, io, socketData) {
-        var roomKey = socketData.idRooms[socket.id];
-        if (roomKey && socketData.trackRooms[roomKey] && socketData.trackRooms[roomKey][socket.id]) {
-        	delete socketData.trackRooms[roomKey][socket.id];
-        	}
-        socketData.isInRoom[socket.id] = false;
-        socketData.idRooms[socket.id] = socket.id; // start-room
-    	var id_name = socketData.idNames[socket.id] || "unknown";
-        socket.broadcast.to(roomKey).emit('karttaRoomStatusUpdate', {
-            name: id_name,
-            text: id_name + " left",
-            created: Date.now(),
-            roominfo: socketData.trackRooms[roomKey]
-        });
-        //console.log("Leaving trackroom id:"+socket.id);
-        //console.log(socketData.trackRooms);
-    }
+
 
 
     

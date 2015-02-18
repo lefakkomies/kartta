@@ -1,5 +1,5 @@
 
-<section class=' well well-lg' data-ng-controller="karttaEnterRoomController">
+<section class=' well well-lg' data-ng-controller="karttaEnterRoomController as enterRoom">
 <div class='row'>
 <div class='container'>
     
@@ -11,7 +11,7 @@
     <div class="text-center form-group col-sm-4 col-sm-offset-4" ng-class="{  
                     'has-error':  inputRoomForm.username.$error.minlength,  
                     'has-success': !inputRoomForm.username.$error.minlength}">
-    <div class="">Name:</div> <input class=" input-lg text-center form-control" type="text" name="username" ng-model="userstate.name" ng-minlength="3" ng-maxlength="100" required >
+    <div class="">Name:</div> <input class=" input-lg text-center form-control" type="text" name="username" ng-model="enterRoom.userstate.name" ng-minlength="3" ng-maxlength="100" required >
     <div class="alert alert-danger" ng-show="inputRoomForm.username.$error.minlength">Username too short!</div>
     <div class="alert alert-danger" ng-show="inputRoomForm.username.$error.maxlength">Username too long!</div>
     <div class="alert alert-danger" ng-show="inputRoomForm.username.$error.required">Username is required!</div>
@@ -23,7 +23,7 @@
                     'has-error':  inputRoomForm.trackroom.$error.minlength,  
                     'has-success': !inputRoomForm.trackroom.$error.minlength}">
         
-       <div class="">TrackRoom:</div> <input class=" input-lg text-center form-control" type="text" name="trackroom" ng-model="userstate.trackroom" value="" required ng-minlength="3" ng-maxlength="100">
+       <div class="">TrackRoom:</div> <input class=" input-lg text-center form-control" type="text" name="trackroom" ng-model="enterRoom.userstate.trackroom" value="" required ng-minlength="3" ng-maxlength="100">
     <div class="alert alert-danger" ng-show="inputRoomForm.trackroom.$error.minlength">Trackroom too short!</div>
     <div class="alert alert-danger" ng-show="inputRoomForm.trackroom.$error.maxlength">Trackroom too long!</div>
     <div class="alert alert-danger" ng-show="inputRoomForm.trackroom.$error.required">Trackroom is required!</div>
@@ -31,7 +31,7 @@
     <div class=""></div>
    
     <div class=" text-center col-sm-4 col-sm-offset-4">    
-    <button  ng-click="goTrackRoom()" class="btn btn-success btn-large" ng-disabled="inputRoomForm.$invalid" placeholder=".col-sm-2 .col-sm-offset-4">Enter {{userstate.trackroom}}</button>
+    <button  ng-click="enterRoom.goTrackRoom()" class="btn btn-success btn-large" ng-disabled="inputRoomForm.$invalid" placeholder=".col-sm-2 .col-sm-offset-4">Enter {{enterRoom.userstate.trackroom}}</button>
     </div>
     <div class=" "></div>
      </form>
