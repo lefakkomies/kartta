@@ -58,6 +58,7 @@
             <span data-ng-bind="message.date | date:'mediumTime'"></span>
                 <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
             <span data-ng-bind="message.name"></span>
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
             <span data-ng-bind="message.text"></span>
         </strong>
         <!-- Text messages -->
@@ -73,7 +74,7 @@
         <span ng-switch-default>
             <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
             <span data-ng-bind="message.date | date:'mediumTime'"></span>
-            <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
+            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
             <span data-ng-bind="message.text"></span>
         <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
             <span data-ng-bind="message.kartta_response_text"></span>

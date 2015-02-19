@@ -26,7 +26,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         /*  Socket messages
          *  =================
          *  'kEnterTrackRoom'   ->  : tell server entering the room
-         *  'kLeaveTrackRoom'   ->  : tell server leabing the room
+         *  'kLeaveTrackRoom'   ->  : tell server leaving the room
          *  'kMessage'          ->  : general text message to server
          *                          : types: 'textMessage', 
          *  'kPosUpdate'        ->  : message to update position
@@ -48,7 +48,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             if (message.markerinfo) {
                 updateMarker(message.markerinfo);
 			}*/      
-            console.log(mainCtrl.messages);
+            //console.log(mainCtrl.messages);
         });
         
         // Server notifies changes in trackroom users
@@ -60,7 +60,8 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
                 }
             console.log("Trackroom user info");
             console.log(mainCtrl.userinfo);
-            //mainCtrl.messages.splice(0, 0, message);
+            mainCtrl.messages.splice(0, 0, message);
+            if (mainCtrl.messages.length > 20) mainCtrl.messages.splice(-1, 1);
         });
         
         // respond to position update
@@ -74,7 +75,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
          *   Callbacks from buttons etc.
          */
         
-        // user button pressed
+        // user button pressed (test)
         mainCtrl.userButtonPressed = function(id) {
             console.log("User button pressed with id:" + id + "and username " + mainCtrl.userinfo[id].name);
         }
@@ -82,9 +83,9 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         // returns to start page
         mainCtrl.returnToStart = function () {
         console.log("leaving page...");
-		// TODO remove marker
         navigator.geolocation.clearWatch(mainCtrl.watchID); // stop watching pos
         SocketIO.emit('kLeaveTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
+        //removeMarker(SocketIO.socket.id);
 		$location.path("/");
  		}
         

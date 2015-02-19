@@ -88,13 +88,14 @@ module.exports = function(io, socket, socketData) {
         console.log(message.name + " entering trackroom: "+message.trackroom);
         console.log(message);
         var roomKey = message.trackroom;
+        /*
         // send message for connection
         io.to(message.trackroom).emit('kMessage', {
             type: 'status',
             text: 'connected',
             date: Date.now(),
             name: message.name
-        });
+        });*/
         if (!socketData.trackRooms[roomKey]) {// trackroom does not exist yet
             socketData.trackRooms[roomKey] = {}; // create one
         }
@@ -106,16 +107,15 @@ module.exports = function(io, socket, socketData) {
         socket.join(roomKey);
         var new_message = {
             name: message.name,
-            text: message.name + " joined",
+            type: 'status',
+            text: " joined",
             date: Date.now(),
             roominfo: socketData.trackRooms[roomKey]
         };
-        socket.broadcast.to(roomKey).emit('kRoomStatusUpdate', new_message);
-        socket.emit('kRoomStatusUpdate', new_message); // also to yourself
+        io.to(roomKey).emit('kRoomStatusUpdate', new_message);
+        //socket.emit('kRoomStatusUpdate', new_message); // also to yourself
         console.log("** ROOMDATA **");
-        console.log(socketData.trackRooms[roomKey]);
-        //io.emit('karttaTrackRoomStatusUpdate', message);     
-	   
+        console.log(socketData.trackRooms[roomKey]);     
     }
 
 // leave the map
@@ -124,15 +124,18 @@ module.exports = function(io, socket, socketData) {
         //socketData.isInRoom[socket.id] = false;
         //socketData.idRooms[socket.id] = socket.id; // start-room
     	var id_name = socketData.idNames[socket.id] || "unknown";
-        socket.broadcast.to(roomKey).emit('karttaRoomStatusUpdate', {
+        // delete user from room
+        if (roomKey && socketData.trackRooms[roomKey] && socketData.trackRooms[roomKey][socket.id]) {
+        	delete socketData.trackRooms[roomKey][socket.id];
+        }
+        io.to(roomKey).emit('kRoomStatusUpdate', {
             name: id_name,
-            text: id_name + " left",
+            text: " left",
+            type: 'status',
             date: Date.now(),
             roominfo: socketData.trackRooms[roomKey]
         });          
-    	if (roomKey && socketData.trackRooms[roomKey] && socketData.trackRooms[roomKey][socket.id]) {
-        	delete socketData.trackRooms[roomKey][socket.id];
-        }
+
         if (socketData.idRooms[socket.id]) {
     		delete socketData.idRooms[socket.id];
         }
