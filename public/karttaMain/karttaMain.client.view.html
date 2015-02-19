@@ -1,6 +1,6 @@
 <!-- The main view -->
 
-<section class='' ng-controller="karttaMainController">
+<section class='' ng-controller="karttaMainController as mainCtrl">
     
 
     
@@ -15,60 +15,67 @@
     
 <div class="row well well-lg"> 
   
-    <div class="col-md-7"><p class='lead'>You, <strong>{{userstate.name}}</strong>, are in TrackRoom <strong>{{userstate.trackroom}}</strong>. </p></div>
+    <div class="col-md-7"><p class='lead'>You, <strong>{{mainCtrl.userstate.name}}</strong>, are in TrackRoom <strong>{{mainCtrl.userstate.trackroom}}</strong>. </p></div>
     <div class="col-md-1"></div>
     <div class="col-md-4">
-    <button class="btn btn-success btn-large" ng-click="returnToStart()">Leave {{userstate.trackroom}}</button>
+    <button class="btn btn-success btn-large" ng-click="mainCtrl.returnToStart()">Leave {{mainCtrl.userstate.trackroom}}</button>
     </div>
 <div class="col-md-12">
-<span ng-repeat="(key, value) in userinfo">
+<span ng-repeat="(key, value) in mainCtrl.userinfo">
 <button class="btn btn-primary btn-xs" style="background-color: {{value.color}}; border-color: {{value.color}}; border-width: 5px; border-radius: 20px;" ng-click="userButtonPressed(key)">
          <span class="badge">{{ value.name }}:{{ value.id }}</span>
 </button>
 </span>
 </div>
 <div class="angular-google-map-container col-md-12">    
-<ui-gmap-google-map center='map.center' zoom='map.zoom' options="options">
+<ui-gmap-google-map center='mainCtrl.map.center' zoom='mainCtrl.map.zoom' options="mainCtrl.options">
     
 
-    <ui-gmap-markers models="userMarkers" coords="'self'" icon="'icon'" doRebuildAll="true" idKey="'idKey'">
+    <ui-gmap-markers models="mainCtrl.userMarkers" coords="'self'" icon="'icon'" doRebuildAll="true" idKey="'idKey'">
         </ui-gmap-markers>
 </ui-gmap-google-map>    
 </div>
     <div class="well col-md-12">            
-<button class="btn btn-primary btn-xs" ng-click="toggleTracking()">
-        SHOW POSITION 
+<button class="btn btn-primary btn-xs" ng-click="mainCtrl.toggleTracking()">
+        {{mainCtrl.showPosText}} 
         </button>
-<button class="btn btn-primary btn-xs" ng-click="testMap()">
+<button class="btn btn-primary btn-xs" ng-click="mainCtrl.testMap()">
         MAP TEST
         </button>
         </div>
 <!-- The message form -->
-    <form class='col-md-12' ng-submit="sendMessage();">
+    <form class='col-md-12' ng-submit="mainCtrl.sendMessage();">
         <div class='form-group'>
-        <input type="text" data-ng-model="messageText" />
-        <input type="number"  data-ng-model="messageLatitude" />
-        <input type="number"  data-ng-model="messageLongitude" />
+        <input type="text" data-ng-model="mainCtrl.messageText" />
         <input type="submit">
         </div>
         </form>
     
-    <div class="col-md-12" data-ng-repeat="message in messages" data-ng-switch="message.type">
+    <div class="col-md-12" data-ng-repeat="message in mainCtrl.messages" ng-switch="message.type">
         <!-- Status messages bolder -->
-        <strong data-ng-switch-when='status'>
+        <strong ng-switch-when='status'>
                 <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
             <span data-ng-bind="message.date | date:'mediumTime'"></span>
-                <span class="glyphicon glyphicon-leaf" aria-hidden="true"></span>
-            <span></span>
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+            <span data-ng-bind="message.name"></span>
             <span data-ng-bind="message.text"></span>
         </strong>
+        <!-- Text messages -->
+        <span ng-switch-when='textMessage'>
+                <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+            <span data-ng-bind="message.date | date:'mediumTime'"></span>
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span> 
+            <span data-ng-bind="message.name"></span>
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span data-ng-bind="message.text"></span>
+        </span>
         <!-- Render regular messages -->
-        <span data-ng-switch-default>
+        <span ng-switch-default>
             <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-            <span data-ng-bind="message.created | date:'mediumTime'"></span>
+            <span data-ng-bind="message.date | date:'mediumTime'"></span>
             <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
             <span data-ng-bind="message.text"></span>
-        <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
             <span data-ng-bind="message.kartta_response_text"></span>
         </span>
     </div>

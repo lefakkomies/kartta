@@ -11,30 +11,44 @@ module.exports = function(io, socket, socketData) {
     var userColor = RandomColor.randomColor({luminosity: 'dark'}); // generate once
     // console.log(userColor);
     
-    // Emit the status event when a new socket client is connected
-    io.emit('kMessage', {
-        type: 'status',
-        text: 'connected',
-        date: Date.now(),
-        username: 'noname'
-    });
 
+    // Logic for requesting ok to enter room
+    socket.on('kEnterTrackRoomOK', function(message) {
+        // Here possible to check if i.e. duplicate names in trackroom in future
+        if (message.name || message.trackroom) {
+            console.log(message.name + " given OK to enter trackroom " + message.trackroom);
+            io.emit('kEnterTrackRoomOK', {okToEnter: true});
+        } else { // some problem
+            console.log("Request to enter trackroom rejected:");
+            console.log(message);
+            io.emit('kEnterTrackRoomOK', {okToEnter: false, text:"Enter not accepted"});
+        }
+    });
+    
     // Send a xmos messages to all connected sockets when a message is received 
     socket.on('kMessage', function(message) {
         console.log(message);
-        message.type = 'message';
-        message.created = Date.now();
-        message.username = 'dummy';
-        if (message.messageLatitude || message.messageLongitude) {
-        message.kartta_response_text = "r: "+message.text+
-        " Lat:"+message.messageLatitude.toString()+
-        " Lon:"+message.messageLongitude.toString(); 
-        } else {
-        message.kartta_response_text = "did not get you :(";
-        }
-        io.emit('kMessage', message);   
+        message.date = Date.now();
+        io.to(message.trackroom).emit('kMessage', message);   
     });
 
+    // Get position update on broadccast it to others in the room
+    socket.on('kPosUpdate', function(message) {
+        console.log("Got kPosUpdate");
+        if (message.trackroom && message.name && message.id && message.longitude && message.latitude) {
+            console.log("Room: "+ message.trackroom 
+                        + " Name: " + message.name 
+                        + " pos update. Lat: " + message.latitude 
+                        + " Lon: " + message.longitude);
+            message.date = Date.now();
+            io.to(message.trackroom).emit('kPosUpdate', message);
+            //socket.broadcast.to(message.trackroom).emit('kPosUpdate', message);
+            //socket.emit('kPosUpdate', message); // bounce back to creator
+        } else {
+            console.log("problem in kPosUpdate:");
+            console.log(message);
+        }
+    });
 
     // Disconnections
     socket.on('disconnect', function() {
@@ -53,6 +67,7 @@ module.exports = function(io, socket, socketData) {
     // Enter room
     socket.on('kEnterTrackRoom', function(message) {
         //joinMap(socket, io, message, socketData);
+            // Emit the status event when a new socket client is connected
         joinMap(message);
     });
     
@@ -70,32 +85,38 @@ module.exports = function(io, socket, socketData) {
 	// internal
     
     function joinMap(message) {
-    console.log("Entering trackroom");
-    console.log(message);
-    var roomKey = message.trackroom;
-
-    if (!socketData.trackRooms[roomKey]) {// trackroom does not exist yet
-        socketData.trackRooms[roomKey] = {};
-    }
-    var id_name = message.name;
-    socketData.trackRooms[roomKey][socket.id] = {name: id_name, color: userColor};
-    socketData.idRooms[socket.id] = roomKey;
-    socketData.idNames[socket.id] = id_name; 
-    //socketData.isInRoom[socket.id] = true;
-    socket.join(roomKey);
-    var new_message = {
-        name: message.name,
-        text: message.name + " joined",
-        date: Date.now(),
-        roominfo: socketData.trackRooms[roomKey]
-    };
-    socket.broadcast.to(roomKey).emit('kRoomStatusUpdate', new_message);
-    socket.emit('kRoomStatusUpdate', new_message); // also to yourself
-    console.log("** ROOMDATA **");
-    console.log(socketData.trackRooms[roomKey]);
-    //io.emit('karttaTrackRoomStatusUpdate', message);     
+        console.log(message.name + " entering trackroom: "+message.trackroom);
+        console.log(message);
+        var roomKey = message.trackroom;
+        // send message for connection
+        io.to(message.trackroom).emit('kMessage', {
+            type: 'status',
+            text: 'connected',
+            date: Date.now(),
+            name: message.name
+        });
+        if (!socketData.trackRooms[roomKey]) {// trackroom does not exist yet
+            socketData.trackRooms[roomKey] = {}; // create one
+        }
+        var id_name = message.name;
+        socketData.trackRooms[roomKey][socket.id] = {name: id_name, color: userColor};
+        socketData.idRooms[socket.id] = roomKey;
+        socketData.idNames[socket.id] = id_name; 
+        //socketData.isInRoom[socket.id] = true;
+        socket.join(roomKey);
+        var new_message = {
+            name: message.name,
+            text: message.name + " joined",
+            date: Date.now(),
+            roominfo: socketData.trackRooms[roomKey]
+        };
+        socket.broadcast.to(roomKey).emit('kRoomStatusUpdate', new_message);
+        socket.emit('kRoomStatusUpdate', new_message); // also to yourself
+        console.log("** ROOMDATA **");
+        console.log(socketData.trackRooms[roomKey]);
+        //io.emit('karttaTrackRoomStatusUpdate', message);     
 	   
-}
+    }
 
 // leave the map
 	function leaveMap(socket, io, socketData) {

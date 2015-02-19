@@ -5,115 +5,141 @@
 // Create  'karttaMain' controller
 angular.module('karttaMain').controller('karttaMainController', ['$scope', '$location','SocketIO','uiGmapGoogleMapApi','UserState',
     function($scope, $location, SocketIO,uiGmapGoogleMapApi,UserState) {
-        // Store messages
-        var myName = "noname"; // to be updated
-        var myColor = "#ffffff"; // to be updated
-        $scope.userstate = UserState;
-        $scope.messages = [];
-        $scope.userinfo = {}; // info on users in the curret trackroom
-        $scope.watchID = 0;
+        
+        var mainCtrl = this; // reference of everything instead of $scope
+        
+        mainCtrl.userstate = UserState; // service to hold name, room, ...
+        mainCtrl.messages = []; // messages present to user
+        mainCtrl.userinfo = {}; // info of users in the curret trackroom
+        mainCtrl.watchID = 0; // brower geolocation watch if
+        
+        mainCtrl.showPosText = "SHOW POSITION";
+        
         var hash2IntId = {};
         var counter = 1;
-        var positionMessageCounter = 0; // for looking how many messages sent
+        var positionMessageCounter = 0; // for looking how many pos messages sent
         var _maps; // handle to google maps
         
-        $scope.userMarkers = []; // holds info of markers
+        mainCtrl.userMarkers = []; // holds info of markers
         var _userMarkers = []; // for populating
         
-        // Post that entered into TrackRoom
-        SocketIO.emit('kEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom,
-                                               color: UserState.color});
+        /*  Socket messages
+         *  =================
+         *  'kEnterTrackRoom'   ->  : tell server entering the room
+         *  'kLeaveTrackRoom'   ->  : tell server leabing the room
+         *  'kMessage'          ->  : general text message to server
+         *                          : types: 'textMessage', 
+         *  'kPosUpdate'        ->  : message to update position
+         *  'kRoomStatusUpdate' <-  : something changed in the room and info updated
+         * 
+         */
+        
+        // Post actual enter into TrackRoom
+        SocketIO.emit('kEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
         
         // General listener to 'karttaMessage' event        
         SocketIO.on('kMessage', function(message) {
-            //console.log(message);
+            console.log(message);
             //$scope.messages.push(message);
-            $scope.messages.splice(0, 0, message);
-            if ($scope.messages.length > 20) $scope.messages.splice(-1, 1);
+            mainCtrl.messages.splice(0, 0, message);
+            if (mainCtrl.messages.length > 20) mainCtrl.messages.splice(-1, 1);
+            /*
             // does the message include position information
             if (message.markerinfo) {
                 updateMarker(message.markerinfo);
-			}        
+			}*/      
+            console.log(mainCtrl.messages);
         });
         
+        // Server notifies changes in trackroom users
         SocketIO.on('kRoomStatusUpdate', function(message) {
-            console.log(message);
-            $scope.userinfo = message.roominfo;
-            if ($scope.userinfo[SocketIO.socket.id]) {
-            	myName = $scope.userinfo[SocketIO.socket.id].name;
-            	myColor = $scope.userinfo[SocketIO.socket.id].color;
+            //console.log(message);
+            mainCtrl.userinfo = message.roominfo;
+            if (mainCtrl.userinfo[SocketIO.socket.id]) {
+            	mainCtrl.userstate.color = mainCtrl.userinfo[SocketIO.socket.id].color;
                 }
-            console.log("DATAA");
-            console.log($scope.userinfo);
-            //$scope.messages.push(message);
-            $scope.messages.splice(0, 0, message);
+            console.log("Trackroom user info");
+            console.log(mainCtrl.userinfo);
+            //mainCtrl.messages.splice(0, 0, message);
         });
+        
+        // respond to position update
+        SocketIO.on('kPosUpdate', function(message) {
+            console.log("Position update of :" + message.name);
+            console.log(message);
+            updateMarker(message);
+        });
+        
+        /*
+         *   Callbacks from buttons etc.
+         */
         
         // user button pressed
-        $scope.userButtonPressed = function(id) {
-            console.log("User button pressed with id:"+id+"and username "+$scope.userinfo[id].name);
+        mainCtrl.userButtonPressed = function(id) {
+            console.log("User button pressed with id:" + id + "and username " + mainCtrl.userinfo[id].name);
         }
         
         // returns to start page
-        $scope.returnToStart = function () {
+        mainCtrl.returnToStart = function () {
         console.log("leaving page...");
 		// TODO remove marker
-        navigator.geolocation.clearWatch($scope.watchID); // stop watching pos
+        navigator.geolocation.clearWatch(mainCtrl.watchID); // stop watching pos
         SocketIO.emit('kLeaveTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
 		$location.path("/");
  		}
         
-        // Create a controller method for sending messages
-        $scope.sendMessage = function() {
+        // Send text message to server
+        mainCtrl.sendMessage = function() {
         	// Create a new message object
             var message = {
-                text: $scope.messageText,
-                messageLongitude: $scope.messageLongitude,
-                messageLatitude: $scope.messageLatitude
+                text: mainCtrl.messageText,
+                type: 'textMessage',
+                name: UserState.name,
+                trackroom: UserState.trackroom,
+                id : SocketIO.socket.id 
+                //messageLongitude: mainCtrl.messageLongitude,
+                //messageLatitude: mainCtrl.messageLatitude
             };
-            console.log(message);
+            //console.log(message);
             // Emit a 'karttaMessage' message event
             SocketIO.emit('kMessage', message);
             
             // Clear the message text
             this.messageText = '';
         }
-        // for sending test command
-        $scope.toggleTracking = function() {
-            if ($scope.watchID === 0) {         
+        
+        // Toggle tracking on or off
+        mainCtrl.toggleTracking = function() {
+            if (mainCtrl.watchID === 0) {         
             if (navigator.geolocation) {
-        		$scope.watchID = navigator.geolocation.watchPosition(function(position){
+        		mainCtrl.watchID = navigator.geolocation.watchPosition(function(position){
                     var lat = position.coords.latitude+Math.random()*0.01;
                     var lon = position.coords.longitude+Math.random()*0.01;
+                    /*
                     var info = {
                     	latitude: lat, // add random to make visible in debug
                     	longitude: lon,
                     	text: "Update position",
                     	id: SocketIO.socket.id, 
                         number: positionMessageCounter,
-                       };
+                       };*/
                     positionMessageCounter++;
-                    /*
-                    if (counter==0) {
-                		$scope.karttaMarkers.push(info);
-                    	counter += 0.1;
-                	} else {
-                		$scope.karttaMarkers[0] = info;   
-                	} 
-                    */
                     // Send position information
-                    SocketIO.emit('kMessage', {
-                    	messageLongitude:lat,
-                    	messageLatitude:lon,
-                    	text: "Update pos of name:"+UserState.name,
-                    	markerinfo: info});
+                    SocketIO.emit('kPosUpdate', {
+                    	latitude : lat,
+                    	longitude : lon,
+                        trackroom: UserState.trackroom,
+                    	name : UserState.name,
+                        id : SocketIO.socket.id });
                 });
-                console.log("Start tracking ID:"+$scope.watchID);
+                console.log("Start tracking ID: " + mainCtrl.watchID);
+                mainCtrl.showPosText = "HIDE POSITION"; // button text
     			}
             } else {
-            navigator.geolocation.clearWatch($scope.watchID); // stop watching
-            $scope.watchID = 0; 
+            navigator.geolocation.clearWatch(mainCtrl.watchID); // stop watching
+            mainCtrl.watchID = 0; 
             console.log("Stop tracking");
+            mainCtrl.showPosText = "SHOW POSITION"; // button text
         }
         }
 
@@ -127,22 +153,22 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         // uiGmapGoogleMapApi is a promise.
     	// The "then" callback function provides the google.maps object.
         uiGmapGoogleMapApi.then(function(maps) {
-            $scope.map = { center: { latitude: 60.26, longitude: 24.84 }, zoom: 12 };
+            mainCtrl.map = { center: { latitude: 60.26, longitude: 24.84 }, zoom: 12 };
             //$scope.options = {scrollwheel: false};
             //$scope.options = customMapStyleOptions;
-            $scope.options = {
+            mainCtrl.options = {
                 		scrollwheel: false,
    						styles: customMapStyleOptions,
 			};
             //console.log($scope.options);
-			$scope.karttaMarkers = [];
-            _maps = maps; 
+			mainCtrl.karttaMarkers = [];
+            _maps = maps; // save reference
         });
         
         // for test changing map position
-        $scope.testMap = function() {
+        mainCtrl.testMap = function() {
                 //$scope.map = { center: { latitude: 55, longitude: -73 }, zoom: 6 };
-            	$scope.map = { center: { latitude: 60, longitude: 24 }, zoom: 11 };
+            	mainCtrl.map = { center: { latitude: 60, longitude: 24 }, zoom: 11 };
               };
                                                                  
     // Removes marker                                                            
@@ -161,14 +187,14 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             if (foundIndex > -1) {
                  _userMarkers.splice(foundIndex, 1); // remove
             	}
-        	$scope.userMarkers = _userMarkers;
+        	mainCtrl.userMarkers = _userMarkers;
             }
         
-    // update or create marker
+    // update or create marker for some user that's position is updated
     function updateMarker(markerinfo) {
                 // find if hash has marker and update
         		if (hash2IntId[markerinfo.id]) { // marker for given hash exist
-                   var markerColor = $scope.userinfo[markerinfo.id].color;
+                   var markerColor = mainCtrl.userinfo[markerinfo.id].color;
                    var markerIntID = hash2IntId[markerinfo.id];
                    console.log("Usermarkers");
                    console.log(_userMarkers);
@@ -179,7 +205,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
                         element = markerinfo;
                         element.idKey = markerIntID;
                         console.log("found marker in update. ID: "+element.idKey);
-                        console.log(element);
+                        //console.log(element);
                         return true; // found
                     }
                     return false; // not found this iteration
@@ -207,9 +233,9 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
                        counter++;
                        _userMarkers.push(markerinfo);
                                }
-        $scope.userMarkers = _userMarkers; // make the update
-                                 	}
-                                                                 
+        mainCtrl.userMarkers = _userMarkers; // make the update
+        mainCtrl.userMarkers = _userMarkers; // make the update
+                                 	}                                                          
     }]); 
 
 
@@ -223,18 +249,21 @@ angular.module('karttaMain').controller('karttaEnterRoomController', ['$scope', 
         this.userstate = UserState;
         this.messages = [];
 
-        // go to TrackRoom
+        // Check from server that is ok to go to trackroom and if ok -> go "/kartta"
         this.goTrackRoom = function () {
-        console.log(UserState.name + " goes to trackRoom " + UserState.trackroom);
-        //SocketIO.emit('karttaEnterTrackRoom', {name: UserState.name, trackroom: UserState.trackroom,
-        //                                       color: UserState.color});
-        //$scope.userstate.id = SocketIO.socket.id; // take directly
-		$location.path("/kartta");
- 		}
-        
-        
-        
-        
+            SocketIO.emit('kEnterTrackRoomOK', {name: UserState.name, trackroom: UserState.trackroom });
+            SocketIO.on('kEnterTrackRoomOK', function(message) {
+                if (message.okToEnter || message.okToEnter === true) {
+                    console.log(UserState.name + " goes to trackRoom " + UserState.trackroom);
+                    SocketIO.removeListener('kEnterTrackRoomOK'); 
+                    $location.path("/kartta");
+                } else { // not ok, stay in "lobby"
+                    console.log("Not ok to go to room. Message from server:"+message.text);
+                }
+
+            });
+  
+        }
     }]);
 
 // save test style
