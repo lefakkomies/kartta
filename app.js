@@ -77,11 +77,10 @@ var server = http.createServer(app);
  * Connect socketio.
  */
 var io = socketio.listen(server);
-
 var socketData = {
 		trackRooms: {}, // room -> info
 		idRooms: {}, // id -> room
-    	idNames: {}, // id -> name
+    	idNames: {} // id -> name
     	//isInRoom: {} // whether key=id is in room or in "lobby"
 }; 
 
@@ -127,9 +126,10 @@ function onError(error) {
     throw error;
   }
 
+
   var bind = typeof port === 'string'
     ? 'Pipe ' + port
-    : 'Port ' + port
+    : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {

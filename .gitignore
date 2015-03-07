@@ -29,3 +29,5 @@ public/lib
 
 # Users Environment Variables
 .lock-wscript
+# webstrom stuff ?
+.idea
