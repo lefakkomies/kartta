@@ -11,11 +11,17 @@ module.exports = function(io, socket, socketData) {
     var userColor = RandomColor.randomColor({luminosity: 'dark'}); // generate once
     // console.log(userColor);
     
+    // logic for sending id
+    socket.on('kID', function(message) {
+        console.log(message);
+        socket.emit('kID', socket.id);
+        console.log('Sent ID: ' + socket.id);
+    });
 
     // Logic for requesting ok to enter room
     socket.on('kEnterTrackRoomOK', function(message) {
         // Here possible to check if i.e. duplicate names in trackroom in future
-        if (message.name || message.trackroom) {
+        if (message.name && message.trackroom) {
             console.log(message.name + " given OK to enter trackroom " + message.trackroom);
             io.emit('kEnterTrackRoomOK', {okToEnter: true});
         } else { // some problem

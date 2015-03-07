@@ -78,7 +78,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         // user button pressed (test)
         mainCtrl.userButtonPressed = function(id) {
             console.log("User button pressed with id:" + id + "and username " + mainCtrl.userinfo[id].name);
-        }
+        };
         
         // returns to start page
         mainCtrl.returnToStart = function () {
@@ -87,7 +87,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
         SocketIO.emit('kLeaveTrackRoom', {name: UserState.name, trackroom: UserState.trackroom});
         //removeMarker(SocketIO.socket.id);
 		$location.path("/");
- 		}
+ 		};
         
         // Send text message to server
         mainCtrl.sendMessage = function() {
@@ -107,7 +107,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             
             // Clear the message text
             this.messageText = '';
-        }
+        };
         
         // Toggle tracking on or off
         mainCtrl.toggleTracking = function() {
@@ -142,7 +142,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             console.log("Stop tracking");
             mainCtrl.showPosText = "SHOW POSITION"; // button text
         }
-        }
+        };
 
         // Remove the event listener when the controller instance is destroyed
         $scope.$on('$destroy', function() {           
@@ -159,8 +159,8 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             //$scope.options = customMapStyleOptions;
             mainCtrl.options = {
                 		scrollwheel: false,
-   						styles: customMapStyleOptions,
-			};
+   						styles: customMapStyleOptions
+            };
             //console.log($scope.options);
 			mainCtrl.karttaMarkers = [];
             _maps = maps; // save reference
@@ -172,7 +172,8 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             	mainCtrl.map = { center: { latitude: 60, longitude: 24 }, zoom: 11 };
               };
                                                                  
-    // Removes marker                                                            
+    // Removes marker
+        /*
     function removeMarker(id) {
         	var markerIntID = hash2intId[id];
             var foundIndex = -1;
@@ -190,6 +191,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
             	}
         	mainCtrl.userMarkers = _userMarkers;
             }
+            */
         
     // update or create marker for some user that's position is updated
     function updateMarker(markerinfo) {
@@ -230,7 +232,7 @@ angular.module('karttaMain').controller('karttaMainController', ['$scope', '$loc
                         	strokeWeight:2,
                         	fillColor: markerColor,
                     		strokeColor: markerColor,
-                    		fillOpacity:0.4}
+                    		fillOpacity:0.4};
                        counter++;
                        _userMarkers.push(markerinfo);
                                }
